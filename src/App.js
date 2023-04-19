@@ -4,36 +4,58 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Layout from './Layout/Layout';
 import LoginPage from './LoginPage/LoginPage';
-import { ME } from './urls';
+import ProfilePage from './ProfilePage/ProfilePage';
+import { ME, REFRESH } from './urls';
+import sendRequest from './utils';
 
 
 function App() {
 
   const [userData, setUserData] = useState(null)
 
-  useEffect(() => {
+  function sendRequest(url) {
     const token = localStorage.getItem('access')
     if (token) {
-      axios.get(ME, {headers: {Authorization: `Bearer ${token}`}})
-      .then((responseData) => {
+    axios.get(url, {headers: {Authorization: `Bearer ${token}`}})
+    .then((responseData) => {
         if (responseData.status !== 200) {
-          throw responseData.statusText
+        throw responseData.statusText
         } else {
-          setUserData(responseData.data)
+            setUserData(responseData.data)
         }
-      })
-      .catch((error) => {
-
-      })
+    })
+    .catch((error) => {
+        const refreshToken = localStorage.getItem('refresh')
+        if (! refreshToken) {
+        // the user will have to perforn login
+        } else {
+        axios.post(REFRESH, {refresh: refreshToken})
+        .then((responseData) => {
+            if (responseData.status === 200) {
+                localStorage.setItem('access', responseData.data.access)
+                sendRequest(url)
+            }
+        })
+        .catch()
+        }
+    })
     } else {
 
     }
-    
+  }
+
+  useEffect(() => {
+      sendRequest(ME)
   }, [])
 
   return (
     <Routes>
     <Route path="/" element={<Layout user={userData}/>}>
+      <Route 
+        path="profile/" 
+        element={<ProfilePage user={userData} onImgUpload={() => sendRequest(ME)} />} />
+      
+
       {/* <Route index element={<Home />} />
       <Route path="countries/" element={<CountriesPage />}>
           <Route path=":countryId/" element={ <CountryDetails />}/>

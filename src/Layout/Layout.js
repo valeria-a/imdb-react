@@ -37,6 +37,15 @@ export default function Layout(props) {
                         Countries
                     </NavLink>
                 </MenuItem>
+                <MenuItem>
+                    <NavLink to='profile/'
+                            className='nav-link'
+                            style={({ isActive }) =>
+                                        isActive ? activeStyle : undefined
+                                      }>
+                        Profile
+                    </NavLink>
+                </MenuItem>
                 </Box>
 
                 {/* <Box sx={{ flexGrow: 0, alignContent:'flex-end' }}>
@@ -47,7 +56,9 @@ export default function Layout(props) {
                 <UserAvatar user={props.user}/>
                 </Toolbar>
             </AppBar>
-
+            {/* {props.user && props.user.is_staff &&
+                <button>Employee only</button>
+            } */}
             <Outlet />
         </Box>
     )
