@@ -1,6 +1,8 @@
 import axios from "axios"
 import { useState } from "react"
-import { LOGIN } from "../urls"
+import {GOOGLE_LOGIN, LOGIN} from "../urls"
+import { GoogleLogin } from '@react-oauth/google';
+
 
 export default function LoginPage() {
 
@@ -29,25 +31,37 @@ export default function LoginPage() {
 
     return(
         <>
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="username">Email:</label>
-            <input type="text" name="username" 
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}></input>
+            <form onSubmit={handleSubmit}>
+                <label htmlFor="username">Email:</label>
+                <input type="text" name="username"
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}></input>
 
-            <br />
+                <br />
 
-            <label htmlFor="password" >Password:</label>
-            <input type="password" name="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}></input>
+                <label htmlFor="password" >Password:</label>
+                <input type="password" name="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}></input>
 
-            <br />
+                <br />
 
-            <input type="submit" value="Login"></input>
-        </form>
-        {errorText &&
-        <p>Error occurred: {errorText}</p>}
+                <input type="submit" value="Login"></input>
+            </form>
+            {errorText &&
+            <p>Error occurred: {errorText}</p>}
+
+            <GoogleLogin
+                onSuccess={async credentialResponse => {
+                    console.log(credentialResponse);
+                    const response = await axios.post(GOOGLE_LOGIN,
+                        {},
+                        {headers: {'Authorization': credentialResponse.credential}})
+                }}
+                onError={() => {
+                    console.log('Login Failed');
+                }}
+            />
         </>
     )
 }
